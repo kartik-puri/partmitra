@@ -1,5 +1,7 @@
 'use client'
 
+import CartButton from './CartButton'
+import FloatingCart from './FloatingCart'
 import { useMemo, useState } from 'react'
 
 export default function ShopClient({ products }: { products: any[] }) {
@@ -22,9 +24,27 @@ export default function ShopClient({ products }: { products: any[] }) {
     )
   }, [products, search])
 
+  function addToCart(product: any) {
+    const cart = JSON.parse(localStorage.getItem('partmitra_cart') || '[]')
+    const existing = cart.find((item: any) => item.id === product.id)
+
+    if (existing) {
+      existing.quantity += 1
+    } else {
+      cart.push({
+        ...product,
+        quantity: 1,
+      })
+    }
+
+    localStorage.setItem('partmitra_cart', JSON.stringify(cart))
+    alert('Added to cart')
+  }
+
   return (
     <>
-      <div className="mt-6">
+      <FloatingCart />
+      <div className="mb-3 flex justify-end"><CartButton /></div><div className="mt-6">
         <input
           type="search"
           value={search}
@@ -111,7 +131,15 @@ export default function ShopClient({ products }: { products: any[] }) {
                 </a>
 
                 {product.stock > 0 ? (
-                  <a
+                            <div className="grid grid-cols-2 gap-2">
+            <button
+              onClick={() => addToCart(product)}
+              className="rounded-xl border border-gray-200 px-4 py-3 text-sm font-semibold"
+            >
+              Add to Cart
+            </button>
+
+<a
                     href={`https://wa.me/919882036021?text=${encodeURIComponent(
                       `Hello, I want to buy ${product.product_name}.\nPart No: ${product.part_number}\nVehicle: ${product.compatible_vehicles || 'Not specified'}\nPrice: ₹${Number(product.our_price).toLocaleString('en-IN')}\nDelivery: ${
                         Number(product.our_price) >= 5500
@@ -125,6 +153,7 @@ export default function ShopClient({ products }: { products: any[] }) {
                   >
                     Buy Now
                   </a>
+          </div>
                 ) : (
                   <span className="rounded-xl bg-gray-100 px-3 py-3 text-center text-sm font-semibold text-gray-400">
                     Out of Stock

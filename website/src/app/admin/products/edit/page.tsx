@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 
 export default function EditProduct() {
+  const [onlineDeliveryAvailable, setOnlineDeliveryAvailable] = useState(true)
   const [products, setProducts] = useState<any[]>([])
   const [selectedId, setSelectedId] = useState('')
   const [saving, setSaving] = useState(false)
@@ -77,7 +78,8 @@ export default function EditProduct() {
         minimum_stock: Number(form.minimum_stock || 0),
         supplier: form.supplier,
         rack_location: form.rack_location,
-      })
+      
+      online_delivery_available: onlineDeliveryAvailable,})
       .eq('id', Number(selectedId))
 
     if (error) {
@@ -195,7 +197,18 @@ export default function EditProduct() {
               }
             />
 
-            <button
+            <div className="mb-4">
+        <label className="mb-2 block text-sm font-medium">Online Delivery Available</label>
+        <select
+          value={onlineDeliveryAvailable ? 'yes' : 'no'}
+          onChange={(e) => setOnlineDeliveryAvailable(e.target.value === 'yes')}
+          className="w-full rounded-lg border p-3"
+        >
+          <option value="yes">Yes — Normal online delivery</option>
+          <option value="no">No — Heavy / Big-size product</option>
+        </select>
+      </div>
+      <button
               onClick={saveChanges}
               disabled={saving}
               className='w-full rounded-lg bg-black p-3 font-semibold text-white disabled:opacity-50'

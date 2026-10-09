@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase'
 
 export default function NewProduct() {
   const [saving, setSaving] = useState(false)
+  const [onlineDeliveryAvailable, setOnlineDeliveryAvailable] = useState(true)
   const [message, setMessage] = useState('')
 
   async function saveProduct(e: React.FormEvent<HTMLFormElement>) {
@@ -72,6 +73,7 @@ export default function NewProduct() {
         rack_location: shelf,
         image_url: imageUrl,
         is_active: true,
+      online_delivery_available: onlineDeliveryAvailable,
       })
 
       if (error) {
@@ -129,7 +131,19 @@ export default function NewProduct() {
             />
           </div>
 
-          <button
+          <div className="mb-5 space-y-2">
+        <label className="text-sm font-medium">Online Delivery Available</label>
+        <select
+          value={onlineDeliveryAvailable ? 'yes' : 'no'}
+          onChange={(e) => setOnlineDeliveryAvailable(e.target.value === 'yes')}
+          className="w-full rounded-lg border p-3"
+        >
+          <option value="yes">Yes — Normal online delivery</option>
+          <option value="no">No — Heavy / Big-size product</option>
+        </select>
+      </div>
+
+      <button
             type="submit"
             disabled={saving}
             className="w-full rounded-lg bg-black p-3 font-semibold text-white disabled:opacity-50"
