@@ -122,38 +122,44 @@ export default function ShopClient({ products }: { products: any[] }) {
                 </span>
               </div>
 
-              <div className="mt-5 grid grid-cols-2 gap-2">
+              <div className="mt-5 space-y-2">
                 <a
                   href={`/shop/product/${product.id}`}
-                  className="rounded-xl border border-gray-200 px-3 py-3 text-center text-sm font-semibold text-gray-800"
+                  className="block w-full rounded-xl border border-gray-200 px-3 py-3 text-center text-sm font-semibold text-gray-800"
                 >
                   View Details
                 </a>
 
                 {product.stock > 0 ? (
-                            <div className="grid grid-cols-2 gap-2">
-            <button
-              onClick={() => addToCart(product)}
-              className="rounded-xl border border-gray-200 px-4 py-3 text-sm font-semibold"
-            >
-              Add to Cart
-            </button>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      onClick={() => addToCart(product)}
+                      className="w-full min-w-0 rounded-xl border border-gray-200 px-2 py-3 text-center text-sm font-semibold"
+                    >
+                      Add to Cart
+                    </button>
 
-<a
-                    href={`https://wa.me/919882036021?text=${encodeURIComponent(
-                      `Hello, I want to buy ${product.product_name}.\nPart No: ${product.part_number}\nVehicle: ${product.compatible_vehicles || 'Not specified'}\nPrice: ₹${Number(product.our_price).toLocaleString('en-IN')}\nDelivery: ${
-                        Number(product.our_price) >= 5500
-                          ? 'Free Delivery'
-                          : 'Delivery charges extra'
-                      }`
-                    )}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="rounded-xl bg-gray-950 px-3 py-3 text-center text-sm font-semibold text-white"
-                  >
-                    Buy Now
-                  </a>
-          </div>
+                    <a
+                      href={`https://wa.me/919882036021?text=${encodeURIComponent(
+                        `Hello, I want to buy ${product.product_name}.\nPart No: ${product.part_number}\nVehicle: ${product.compatible_vehicles || 'Not specified'}\nPrice: ₹${Number(product.our_price).toLocaleString('en-IN')}\nDelivery: ${
+                          Number(product.our_price) >= 5500
+                            ? 'Free Delivery'
+                            : 'Delivery charges extra'
+                        }`
+                      )}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full min-w-0 rounded-xl bg-gray-950 px-2 py-3 text-center text-sm font-semibold text-white"
+                    >
+                      Buy Now
+                    </a>
+                  </div>
+                ) : (
+                  <span className="block rounded-xl bg-gray-100 px-3 py-3 text-center text-sm font-semibold text-gray-400">
+                    Out of Stock
+                  </span>
+                )}
+              </div>
                 ) : (
                   <span className="rounded-xl bg-gray-100 px-3 py-3 text-center text-sm font-semibold text-gray-400">
                     Out of Stock
