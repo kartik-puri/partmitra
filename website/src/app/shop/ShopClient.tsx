@@ -112,10 +112,10 @@ export default function ShopClient({ products }: { products: any[] }) {
                 </a>
 
                 {product.stock > 0 ? (
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-2 items-stretch gap-2">
                     <button
                       onClick={() => addToCart(product)}
-                      className="flex min-w-0 items-center justify-center whitespace-nowrap rounded-xl border border-gray-200 px-1.5 py-3 text-xs font-semibold sm:px-2 sm:text-sm"
+                      className="flex min-h-12 min-w-0 w-full items-center justify-center whitespace-nowrap rounded-xl border border-gray-200 bg-white px-2 py-3 text-sm font-semibold text-gray-900 transition hover:bg-gray-50"
                     >
                       Add to Cart
                     </button>
@@ -125,7 +125,7 @@ export default function ShopClient({ products }: { products: any[] }) {
                       )}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex min-w-0 items-center justify-center whitespace-nowrap rounded-xl bg-gray-950 px-1.5 py-3 text-xs font-semibold text-white sm:px-2 sm:text-sm"
+                      className="flex min-h-12 min-w-0 w-full items-center justify-center whitespace-nowrap rounded-xl border border-gray-950 bg-gray-950 px-2 py-3 text-sm font-semibold text-white transition hover:bg-gray-800"
                     >
                       Buy Now
                     </a>
