@@ -9,7 +9,6 @@ export default function ShopClient({ products }: { products: any[] }) {
 
   const filteredProducts = useMemo(() => {
     const q = search.toLowerCase().trim()
-
     if (!q) return products
 
     return products.filter((product) =>
@@ -28,14 +27,8 @@ export default function ShopClient({ products }: { products: any[] }) {
     const cart = JSON.parse(localStorage.getItem('partmitra_cart') || '[]')
     const existing = cart.find((item: any) => item.id === product.id)
 
-    if (existing) {
-      existing.quantity += 1
-    } else {
-      cart.push({
-        ...product,
-        quantity: 1,
-      })
-    }
+    if (existing) existing.quantity += 1
+    else cart.push({ ...product, quantity: 1 })
 
     localStorage.setItem('partmitra_cart', JSON.stringify(cart))
     alert('Added to cart')
@@ -44,7 +37,11 @@ export default function ShopClient({ products }: { products: any[] }) {
   return (
     <>
       <FloatingCart />
-      <div className="mb-3 flex justify-end"><CartButton /></div><div className="mt-6">
+      <div className="mb-3 flex justify-end">
+        <CartButton />
+      </div>
+
+      <div className="mt-6">
         <input
           type="search"
           value={search}
@@ -55,15 +52,14 @@ export default function ShopClient({ products }: { products: any[] }) {
       </div>
 
       <p className="mt-5 text-sm font-medium text-gray-500">
-        {filteredProducts.length} product
-        {filteredProducts.length !== 1 ? 's' : ''} found
+        {filteredProducts.length} product{filteredProducts.length !== 1 ? 's' : ''} found
       </p>
 
-      <div className="mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
         {filteredProducts.map((product) => (
           <article
             key={product.id}
-            className="overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-sm transition hover:shadow-md"
+            className="min-w-0 overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-sm transition hover:shadow-md"
           >
             <div className="relative flex aspect-[4/3] items-center justify-center bg-gray-50">
               {product.image_url ? (
@@ -75,54 +71,39 @@ export default function ShopClient({ products }: { products: any[] }) {
               ) : (
                 <div className="text-center">
                   <div className="text-sm font-semibold text-gray-400">No Photo</div>
-                  <p className="mt-2 text-xs text-gray-400">
-                    Product photo coming soon
-                  </p>
+                  <p className="mt-2 text-xs text-gray-400">Product photo coming soon</p>
                 </div>
               )}
-
-              <span className="absolute left-4 top-4 rounded-full bg-white px-3 py-1.5 text-xs font-bold shadow-sm">
+              <span className="absolute left-4 top-4 max-w-[75%] truncate rounded-full bg-white px-3 py-1.5 text-xs font-bold shadow-sm">
                 {product.brand || ''}
               </span>
             </div>
 
-            <div className="p-5">
-              <h3 className="text-xl font-bold leading-tight text-gray-950">
+            <div className="p-4 sm:p-5">
+              <h3 className="break-words text-xl font-bold leading-tight text-gray-950">
                 {product.product_name}
               </h3>
 
-              <div className="mt-3 space-y-1 text-sm text-gray-500">
-                <p>
-                  <span className="font-semibold text-gray-700">Part No:</span>{' '}
-                  {product.part_number}
-                </p>
-
-                <p>
-                  <span className="font-semibold text-gray-700">Vehicle:</span>{' '}
-                  {product.compatible_vehicles || 'Multiple vehicles'}
-                </p>
+              <div className="mt-3 space-y-1 break-words text-sm text-gray-500">
+                <p><span className="font-semibold text-gray-700">Part No:</span> {product.part_number}</p>
+                <p><span className="font-semibold text-gray-700">Vehicle:</span> {product.compatible_vehicles || 'Multiple vehicles'}</p>
               </div>
 
-              <div className="mt-5 flex items-end justify-between gap-3">
-                <div>
+              <div className="mt-5 flex flex-wrap items-end justify-between gap-3">
+                <div className="min-w-0">
                   <p className="text-xs font-medium text-gray-500">Our Price</p>
                   <p className="mt-1 text-2xl font-bold text-gray-950">
                     ₹{Number(product.our_price).toLocaleString('en-IN')}
                   </p>
                 </div>
-
-                <span
-                  className={`rounded-full px-3 py-1.5 text-xs font-bold ${
-                    product.stock > 0
-                      ? 'bg-green-50 text-green-700'
-                      : 'bg-red-50 text-red-700'
-                  }`}
-                >
+                <span className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-bold ${
+                  product.stock > 0 ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'
+                }`}>
                   {product.stock > 0 ? 'In Stock' : 'Out of Stock'}
                 </span>
               </div>
 
-              <div className="mt-5 space-y-2">
+              <div className="mt-5 grid gap-2">
                 <a
                   href={`/shop/product/${product.id}`}
                   className="block w-full rounded-xl border border-gray-200 px-3 py-3 text-center text-sm font-semibold text-gray-800"
@@ -134,34 +115,23 @@ export default function ShopClient({ products }: { products: any[] }) {
                   <div className="grid grid-cols-2 gap-2">
                     <button
                       onClick={() => addToCart(product)}
-                      className="w-full min-w-0 rounded-xl border border-gray-200 px-2 py-3 text-center text-sm font-semibold"
+                      className="flex min-w-0 items-center justify-center whitespace-nowrap rounded-xl border border-gray-200 px-1.5 py-3 text-xs font-semibold sm:px-2 sm:text-sm"
                     >
                       Add to Cart
                     </button>
-
                     <a
                       href={`https://wa.me/919882036021?text=${encodeURIComponent(
-                        `Hello, I want to buy ${product.product_name}.\nPart No: ${product.part_number}\nVehicle: ${product.compatible_vehicles || 'Not specified'}\nPrice: ₹${Number(product.our_price).toLocaleString('en-IN')}\nDelivery: ${
-                          Number(product.our_price) >= 5500
-                            ? 'Free Delivery'
-                            : 'Delivery charges extra'
-                        }`
+                        `Hello, I want to buy ${product.product_name}.\\nPart No: ${product.part_number}\\nVehicle: ${product.compatible_vehicles || 'Not specified'}\\nPrice: ₹${Number(product.our_price).toLocaleString('en-IN')}\\nDelivery: ${Number(product.our_price) >= 5500 ? 'Free Delivery' : 'Delivery charges extra'}`
                       )}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="w-full min-w-0 rounded-xl bg-gray-950 px-2 py-3 text-center text-sm font-semibold text-white"
+                      className="flex min-w-0 items-center justify-center whitespace-nowrap rounded-xl bg-gray-950 px-1.5 py-3 text-xs font-semibold text-white sm:px-2 sm:text-sm"
                     >
                       Buy Now
                     </a>
                   </div>
                 ) : (
                   <span className="block rounded-xl bg-gray-100 px-3 py-3 text-center text-sm font-semibold text-gray-400">
-                    Out of Stock
-                  </span>
-                )}
-              </div>
-                ) : (
-                  <span className="rounded-xl bg-gray-100 px-3 py-3 text-center text-sm font-semibold text-gray-400">
                     Out of Stock
                   </span>
                 )}
