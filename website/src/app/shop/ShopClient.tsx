@@ -6,6 +6,16 @@ import { useMemo, useState } from 'react'
 
 export default function ShopClient({ products }: { products: any[] }) {
   const [search, setSearch] = useState('')
+  const [wishlist, setWishlist] = useState<string[]>(() => {
+    if (typeof window === 'undefined') return []
+    try {
+      return JSON.parse(localStorage.getItem('partmitra_wishlist') || '[]').map((item: any) =>
+        String(typeof item === 'object' ? item.id : item)
+      )
+    } catch {
+      return []
+    }
+  })
 
   const filteredProducts = useMemo(() => {
     const q = search.toLowerCase().trim()
@@ -22,6 +32,17 @@ export default function ShopClient({ products }: { products: any[] }) {
         .some((value) => String(value).toLowerCase().includes(q))
     )
   }, [products, search])
+
+  function toggleWishlist(product: any) {
+    const id = String(product.id)
+    const current = JSON.parse(localStorage.getItem('partmitra_wishlist') || '[]')
+    const exists = current.some((item: any) => String(typeof item === 'object' ? item.id : item) === id)
+    const next = exists
+      ? current.filter((item: any) => String(typeof item === 'object' ? item.id : item) !== id)
+      : [...current, product]
+    localStorage.setItem('partmitra_wishlist', JSON.stringify(next))
+    setWishlist(next.map((item: any) => String(typeof item === 'object' ? item.id : item)))
+  }
 
   function addToCart(product: any) {
     const cart = JSON.parse(localStorage.getItem('partmitra_cart') || '[]')
@@ -74,9 +95,18 @@ export default function ShopClient({ products }: { products: any[] }) {
                   <p className="mt-2 text-xs text-gray-400">Product photo coming soon</p>
                 </div>
               )}
-              <span className="absolute left-4 top-4 max-w-[75%] truncate rounded-full bg-white px-3 py-1.5 text-xs font-bold shadow-sm">
+              <span className="absolute left-4 top-4 max-w-[65%] truncate rounded-full bg-white px-3 py-1.5 text-xs font-bold shadow-sm">
                 {product.brand || ''}
               </span>
+              <button
+                type="button"
+                onClick={() => toggleWishlist(product)}
+                aria-label={wishlist.includes(String(product.id)) ? 'Remove from wishlist' : 'Add to wishlist'}
+                title={wishlist.includes(String(product.id)) ? 'Remove from wishlist' : 'Add to wishlist'}
+                className={`absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-white text-2xl shadow-sm transition hover:scale-105 ${wishlist.includes(String(product.id)) ? 'text-red-600' : 'text-gray-700'}`}
+              >
+                {wishlist.includes(String(product.id)) ? '♥' : '♡'}
+              </button>
             </div>
 
             <div className="p-4 sm:p-5">
