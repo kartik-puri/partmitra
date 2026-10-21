@@ -1,23 +1,8 @@
+import SiteHeader from "./SiteHeader";
 export default function Home() {
   return (
     <main className="min-h-screen bg-white text-gray-900">
-      <header className="border-b bg-white">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-5">
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">PartMitra</h1>
-            <p className="text-sm text-gray-500">
-              Your Trusted Auto Parts Partner
-            </p>
-          </div>
-
-          <a
-            href="/shop"
-            className="rounded-xl bg-black px-5 py-3 text-sm font-semibold text-white"
-          >
-            Shop Parts
-          </a>
-        </div>
-      </header>
+      <SiteHeader />
 
       <section className="bg-gray-950 text-white">
         <div className="mx-auto max-w-6xl px-5 py-24 sm:py-32">

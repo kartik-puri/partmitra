@@ -1,0 +1,73 @@
+import { supabase } from '@/lib/supabase'
+import ShopClient from './ShopClient'
+
+export default async function Shop() {
+  const { data: products, error } = await supabase
+    .from('Products')
+    .select('*')
+    .eq('is_active', true)
+    .order('id', { ascending: false })
+
+  if (error) {
+    return (
+      <main className="min-h-screen bg-gray-50 p-6">
+        <h1 className="text-3xl font-bold">PartMitra</h1>
+        <p className="mt-4 text-red-600">Unable to load products.</p>
+      </main>
+    )
+  }
+
+  return (
+    <main className="min-h-screen bg-gray-50">
+      <header className="sticky top-0 z-40 border-b border-gray-800 bg-[#080d12] text-white shadow-lg">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-4 sm:px-5">
+          <a href="/" className="flex min-w-0 items-center gap-3">
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-500 text-2xl font-black">⚙</span>
+            <span className="min-w-0">
+              <span className="block text-2xl font-extrabold tracking-tight">Part<span className="text-blue-400">Mitra</span></span>
+              <span className="block text-xs text-gray-300">Right Parts. Better Drives.</span>
+            </span>
+          </a>
+          <nav className="flex shrink-0 items-center gap-4 text-sm font-semibold">
+            <a href="/shop" aria-label="Shop" className="text-gray-200 hover:text-blue-400">Shop</a>
+            <a href="/cart" aria-label="Cart" className="text-gray-200 hover:text-blue-400">Cart</a>
+          </nav>
+        </div>
+      </header>
+
+      <section className="bg-[#080d12] text-white">
+        <div className="mx-auto max-w-6xl px-5 py-8 sm:py-10">
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-blue-400">
+            Laxmi Traders • PartMitra Store
+          </p>
+          <h2 className="mt-3 text-3xl font-extrabold tracking-tight sm:text-4xl">
+            Find the right auto part
+          </h2>
+          <p className="mt-3 max-w-xl text-sm leading-6 text-gray-300 sm:text-base">
+            Search by part number, vehicle, brand or product name.
+          </p>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-6xl px-5 py-8">
+        <ShopClient products={products || []} />
+
+        <div className="mt-10 rounded-2xl border bg-white p-5 text-sm">
+          <p className="font-bold">🚚 Delivery Information</p>
+          <p className="mt-2 text-gray-600">
+            Orders of ₹5,500 or more qualify for free delivery.
+          </p>
+          <p className="text-gray-600">
+            Below ₹5,500, delivery charges are extra.
+          </p>
+        </div>
+      </section>
+
+      <footer className="border-t bg-white">
+        <div className="mx-auto max-w-6xl px-5 py-8 text-sm text-gray-500">
+          PartMitra — A Laxmi Traders initiative
+        </div>
+      </footer>
+    </main>
+  )
+}

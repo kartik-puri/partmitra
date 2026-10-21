@@ -1,3 +1,4 @@
+import SiteHeader from "../SiteHeader";
 import { supabase } from '@/lib/supabase'
 import ShopClient from './ShopClient'
 
@@ -19,35 +20,17 @@ export default async function Shop() {
 
   return (
     <main className="min-h-screen bg-gray-50">
-      <header className="border-b bg-white">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-4 sm:px-5 sm:py-5">
-          <a href="/" className="min-w-0">
-            <h1 className="truncate text-xl font-bold tracking-tight sm:text-2xl">
-              PartMitra
-            </h1>
-            <p className="truncate text-xs text-gray-500 sm:text-sm">
-              Your Trusted Auto Parts Partner
-            </p>
-          </a>
+      <SiteHeader />
 
-          <a
-            href="/"
-            className="shrink-0 rounded-xl border border-gray-200 bg-gray-50 px-3 py-2 text-sm font-semibold text-gray-800"
-          >
-            Home
-          </a>
-        </div>
-      </header>
-
-      <section className="bg-gray-950 text-white">
-        <div className="mx-auto max-w-6xl px-5 py-12">
-          <p className="text-sm font-semibold uppercase tracking-widest text-gray-400">
-            PartMitra Store
+      <section className="bg-[#080d12] text-white">
+        <div className="mx-auto max-w-6xl px-5 py-8 sm:py-10">
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-blue-400">
+            Laxmi Traders • PartMitra Store
           </p>
-          <h2 className="mt-3 text-4xl font-bold">
+          <h2 className="mt-3 text-3xl font-extrabold tracking-tight sm:text-4xl">
             Find the right auto part
           </h2>
-          <p className="mt-3 text-gray-300">
+          <p className="mt-3 max-w-xl text-sm leading-6 text-gray-300 sm:text-base">
             Search by part number, vehicle, brand or product name.
           </p>
         </div>

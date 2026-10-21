@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { supabase } from '@/lib/supabase';
 import Link from 'next/link'
 
 export default function CheckoutPage() {
@@ -10,7 +11,49 @@ export default function CheckoutPage() {
   const [address, setAddress] = useState('')
   const [pincode, setPincode] = useState('')
   const [location, setLocation] = useState('')
+const [city, setCity] = useState('')
+const [state, setState] = useState('')
   const [checking, setChecking] = useState(false)
+  const [placingOrder, setPlacingOrder] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+
+    async function loadSavedAddress() {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user || !active) return;
+
+      const { data, error } = await supabase
+        .from("customer_addresses")
+        .select("full_name, phone, address, city, state, pincode")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (error) {
+        console.error("Saved address load error:", error);
+        return;
+      }
+
+      if (data && active) {
+        setName(data.full_name || "");
+        setPhone(data.phone || "+91");
+        setAddress([
+          data.address,
+          data.city,
+          data.state,
+          data.pincode
+        ].filter(Boolean).join(", "));
+        setPincode(data.pincode || "");
+        setCity(data.city || "");
+        setState(data.state || "");
+      }
+    }
+
+    loadSavedAddress();
+    return () => { active = false; };
+  }, []);
 
   useEffect(() => {
     const saved = JSON.parse(localStorage.getItem('partmitra_cart') || '[]')
@@ -52,26 +95,21 @@ export default function CheckoutPage() {
     checkPincode()
   }, [pincode])
 
-  const subtotal = cart.reduce(
-    (total, item) =>
-      total + Number(item.our_price || 0) * Number(item.quantity || 0),
-    0
+  const deliverableCart = cart.filter(
+    (item) => item.online_delivery_available !== false
   )
-
-  const nonEligible = cart.some(
-    (item) => item.free_delivery_eligible === false
+  const heavyCart = cart.filter(
+    (item) => item.online_delivery_available === false
   )
-
-  const freeDelivery = subtotal >= 5500 && !nonEligible
-
-  const phoneDigits = phone.replace(/\D/g, '').replace(/^91/, '')
-
-  const hasUndeliverableItems = cart.some(
-    (item) => item.online_delivery_available === false || item.free_delivery_eligible === false
+  const hasUndeliverableItems = heavyCart.length > 0
+  const subtotal = deliverableCart.reduce(
+    (sum, item) => sum + Number(item.our_price || 0) * Number(item.quantity || 0), 0
   )
-  const deliveryCharge = hasUndeliverableItems ? 0 : subtotal >= 5500 ? 0 : 499
+  const deliveryCharge = subtotal === 0 || subtotal >= 5500 ? 0 : 499
   const payableTotal = subtotal + deliveryCharge
+  const freeDelivery = deliveryCharge === 0
 
+  const phoneDigits = phone.replace(/\D/g, '')
   const valid =
     name.trim() !== '' &&
     phoneDigits.length === 10 &&
@@ -90,6 +128,67 @@ export default function CheckoutPage() {
     digits = digits.substring(0, 10)
 
     setPhone('+91 ' + digits)
+  }
+
+
+  async function placeOrder() {
+    if (placingOrder || !valid || !deliverableCart.length) return;
+
+    setPlacingOrder(true);
+    try {
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      if (authError) throw authError;
+
+      if (!user) {
+        window.location.href = '/login';
+        return;
+      }
+
+      const { data: order, error: orderError } = await supabase
+        .from('orders')
+        .insert({
+          user_id: user.id,
+          customer_name: name.trim(),
+          phone: phone.replace(/\D/g, '').slice(-10),
+          address: address.trim(),
+          pincode: pincode.trim(),
+          total_amount: payableTotal,
+          delivery_charge: deliveryCharge,
+          payment_status: 'pending',
+          order_status: 'pending'
+        })
+        .select('id')
+        .single();
+
+      if (orderError) throw orderError;
+
+      const items = deliverableCart.map(item => ({
+        order_id: order.id,
+        product_id: Number.isFinite(Number(item.id)) ? Number(item.id) : null,
+        product_name: String(item.product_name),
+        part_number: item.part_number || null,
+        quantity: Number(item.quantity),
+        price: Number(item.our_price),
+        subtotal: Number(item.our_price) * Number(item.quantity)
+      }));
+
+      const { error: itemsError } = await supabase
+        .from('order_items')
+        .insert(items);
+
+      if (itemsError) {
+        alert('Order #' + order.id + ' bana, lekin items save nahi hue. Support se contact karein.');
+        return;
+      }
+
+      alert('Order #' + order.id + ' save ho gaya. Payment abhi pending hai.');
+      window.location.href = '/orders';
+    } catch (error) {
+      console.error('Order error:', error);
+      alert('Order save nahi hua. Login aur Supabase permissions check karein.');
+    } finally {
+      setPlacingOrder(false);
+    }
   }
 
   return (
@@ -219,26 +318,33 @@ export default function CheckoutPage() {
             </div>
 
             <div className="my-5 rounded-xl border p-4 text-sm">
-  <div className="flex justify-between py-1"><span>Subtotal</span><span>₹{subtotal.toLocaleString('en-IN')}</span></div>
-  {hasUndeliverableItems ? (
-    <p className="mt-3 rounded-lg bg-amber-50 p-3 text-amber-900">Due to high delivery charges on heavy / big size products, delivery is unavailable for this product. Please remove heavy products to continue.</p>
-  ) : (
-    <>
-      <div className="flex justify-between py-1"><span>Delivery</span><span>{deliveryCharge === 0 ? 'Free' : `₹${deliveryCharge.toLocaleString('en-IN')}`}</span></div>
-      <div className="mt-2 flex justify-between border-t pt-3 text-base font-bold"><span>Total Payable</span><span>₹{payableTotal.toLocaleString('en-IN')}</span></div>
-    </>
+  <div className="flex justify-between py-1"><span>Deliverable products subtotal</span><span>₹{subtotal.toLocaleString('en-IN')}</span></div>
+  <div className="flex justify-between py-1"><span>Delivery</span><span>{deliveryCharge === 0 ? 'Free' : `₹${deliveryCharge.toLocaleString('en-IN')}`}</span></div>
+  <div className="mt-2 flex justify-between border-t pt-3 text-base font-bold"><span>Total payable</span><span>₹{payableTotal.toLocaleString('en-IN')}</span></div>
+  {heavyCart.length > 0 && (
+    <div className="mt-4 rounded-lg bg-amber-50 p-3 text-amber-900">
+      <p className="font-semibold">Not deliverable online</p>
+      {heavyCart.map((item) => (
+        <p key={item.id} className="mt-1">
+          {item.product_name} × {item.quantity} — ₹{(Number(item.our_price || 0) * Number(item.quantity || 0)).toLocaleString('en-IN')} (excluded from total).
+        Due to high shipping charges for heavy and oversized products, online delivery is unavailable for this item. You can continue checkout with the other deliverable products.
+        </p>
+      ))}
+    </div>
   )}
 </div>
 <button
-              disabled={!valid || hasUndeliverableItems}
-              className={`mt-6 w-full rounded-xl px-5 py-3 font-semibold ${
-                valid
-                  ? 'bg-gray-950 text-white'
-                  : 'bg-gray-200 text-gray-400'
-              }`}
-            >
-              Pay Now — Coming Next
-            </button>
+          type="button"
+          disabled={!valid || placingOrder}
+          onClick={placeOrder}
+          className={`mt-6 w-full rounded-xl px-5 py-3 font-semibold ${
+            valid && !placingOrder
+              ? 'bg-gray-950 text-white'
+              : 'bg-gray-200 text-gray-400'
+          }`}
+        >
+          {placingOrder ? 'Saving Order...' : 'Place Order (Payment Pending)'}
+        </button>
           </div>
         </div>
       </section>
