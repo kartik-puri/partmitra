@@ -13,7 +13,9 @@ export default async function Shop() {
     return (
       <main className="min-h-screen bg-gray-50 p-6">
         <h1 className="text-3xl font-bold">PartMitra</h1>
-        <p className="mt-4 text-red-600">Unable to load products.</p>
+        <p className="mt-4 text-red-600">
+  Unable to load products: {error.message} (Code: {error.code})
+</p>
       </main>
     )
   }
