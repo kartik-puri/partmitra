@@ -1,7 +1,14 @@
+import StoreHeader from "../StoreHeader";
+
 export default function ShopLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
-  return children
+  return (
+    <>
+      <StoreHeader />
+      {children}
+    </>
+  );
 }
