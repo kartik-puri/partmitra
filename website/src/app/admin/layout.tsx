@@ -50,7 +50,8 @@ export default function AdminLayout({
     { name: 'Dashboard', href: '/admin/dashboard' },
     { name: 'Products', href: '/admin/products' },
     { name: '+ Add Product', href: '/admin/products/new' },
-    { name: 'History', href: '/admin/history' },
+    { name: 'Orders', href: '/admin/orders' },
+  { name: 'History', href: '/admin/history' },
   ]
 
   return (
