@@ -1,7 +1,7 @@
 import SiteHeader from "../SiteHeader";
 import { supabase } from '@/lib/supabase'
 import ShopClient from './ShopClient'
-
+export const dynamic = 'force-dynamic'
 export default async function Shop() {
   const { data: products, error } = await supabase
     .from('Products')
